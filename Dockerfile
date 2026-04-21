@@ -7,5 +7,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-ENV PORT=10000
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 app:app
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:10000"]
