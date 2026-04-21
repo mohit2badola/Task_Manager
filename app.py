@@ -565,9 +565,15 @@ def get_activity():
     conn.close()
     return jsonify([dict(log) for log in logs])
 
+# ... (all your route functions above) ...
+
 # ---------------- RUN ----------------
 if __name__ == "__main__":
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    print("=" * 50)
     print("✓ TaskFlow Pro Server Starting...")
     print(f"✓ Database: {'PostgreSQL (Production)' if 'DATABASE_URL' in os.environ else 'SQLite (Local)'}")
-    print("✓ Server running at http://localhost:5000")
-    app.run(debug=True)
+    print(f"✓ Server running at http://localhost:{port}")
+    print("=" * 50)
+    app.run(debug=True, host="0.0.0.0", port=port)
