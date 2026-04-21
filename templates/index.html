@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>TaskFlow Pro - Smart Task Manager</title>
+<link rel="stylesheet" href="/static/style.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+<!-- NAVBAR -->
+<header class="navbar">
+    <div class="logo">
+        <i class="fas fa-tasks"></i>
+        <h2>TaskFlow Pro</h2>
+    </div>
+    <div class="nav-buttons">
+        <button onclick="openModal()" class="btn-primary">
+            <i class="fas fa-plus"></i> Add Task
+        </button>
+        <button onclick="showExportModal()" class="btn-export">
+            <i class="fas fa-download"></i> Export
+        </button>
+        <button onclick="showStats()" class="btn-stats">
+            <i class="fas fa-chart-line"></i> Stats
+        </button>
+        <button onclick="showActivity()" class="btn-activity">
+            <i class="fas fa-history"></i> Activity
+        </button>
+        <button onclick="window.location.href='/logout'" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+</header>
+
+<!-- STATS CARDS -->
+<section class="cards">
+    <div class="card">
+        <i class="fas fa-tasks card-icon"></i>
+        <h3>Total Tasks</h3>
+        <p id="total">0</p>
+    </div>
+    <div class="card progress">
+        <i class="fas fa-spinner card-icon"></i>
+        <h3>In Progress</h3>
+        <p id="progress">0</p>
+    </div>
+    <div class="card done">
+        <i class="fas fa-check-circle card-icon"></i>
+        <h3>Completed</h3>
+        <p id="completed">0</p>
+    </div>
+    <div class="card due">
+        <i class="fas fa-calendar-day card-icon"></i>
+        <h3>Due Today</h3>
+        <p id="dueToday">0</p>
+    </div>
+</section>
+
+<!-- PROGRESS BAR -->
+<div class="progress-section">
+    <div class="progress-header">
+        <span><i class="fas fa-chart-simple"></i> Overall Progress</span>
+        <span id="completionRate">0%</span>
+    </div>
+    <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progressFill" style="width: 0%"></div>
+    </div>
+</div>
+
+<!-- SEARCH & FILTER SECTION -->
+<div class="filter-section">
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search tasks...">
+    </div>
+    
+    <select id="filterPriority" class="filter-select">
+        <option value="all">All Priorities</option>
+        <option value="High">🔴 High</option>
+        <option value="Medium">🟡 Medium</option>
+        <option value="Low">🟢 Low</option>
+    </select>
+    
+    <select id="filterStatus" class="filter-select">
+        <option value="all">All Status</option>
+        <option value="To Do">To Do</option>
+        <option value="Completed">Completed</option>
+    </select>
+    
+    <select id="filterCategory" class="filter-select">
+        <option value="all">All Categories</option>
+        <option value="Work">💼 Work</option>
+        <option value="Personal">🏠 Personal</option>
+        <option value="Shopping">🛒 Shopping</option>
+        <option value="Health">💪 Health</option>
+        <option value="Education">📚 Education</option>
+    </select>
+    
+    <select id="sortBy" class="filter-select">
+        <option value="priority">Sort by Priority</option>
+        <option value="dueDate">Sort by Due Date</option>
+    </select>
+</div>
+
+<!-- TASKS TABLE -->
+<section class="table-section">
+    <table id="taskTable">
+        <thead>
+            <tr>
+                <th><i class="fas fa-tag"></i> Task</th>
+                <th><i class="fas fa-flag"></i> Priority</th>
+                <th><i class="fas fa-calendar"></i> Due Date</th>
+                <th><i class="fas fa-folder"></i> Category</th>
+                <th><i class="fas fa-check-circle"></i> Status</th>
+                <th><i class="fas fa-cog"></i> Actions</th>
+            </tr>
+        </thead>
+        <tbody id="tasksBody"></tbody>
+    </table>
+</section>
+
+<!-- ADD TASK MODAL -->
+<div class="modal" id="taskModal">
+    <div class="modal-content large">
+        <div class="modal-header">
+            <h2><i class="fas fa-plus-circle"></i> Add New Task</h2>
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-heading"></i> Task Title *</label>
+            <input type="text" id="taskInput" placeholder="Enter task title...">
+        </div>
+        
+        <div class="form-group">
+            <label><i class="fas fa-align-left"></i> Description</label>
+            <textarea id="taskDesc" rows="3" placeholder="Add detailed description..."></textarea>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label><i class="fas fa-flag"></i> Priority</label>
+                <select id="prioritySelect">
+                    <option value="High">🔴 High Priority</option>
+                    <option value="Medium" selected>🟡 Medium Priority</option>
+                    <option value="Low">🟢 Low Priority</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label><i class="fas fa-calendar"></i> Due Date</label>
+                <input type="date" id="dueDateInput">
+            </div>
+            
+            <div class="form-group">
+                <label><i class="fas fa-folder"></i> Category</label>
+                <select id="categorySelect">
+                    <option value="Work">💼 Work</option>
+                    <option value="Personal">🏠 Personal</option>
+                    <option value="Shopping">🛒 Shopping</option>
+                    <option value="Health">💪 Health</option>
+                    <option value="Education">📚 Education</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="modal-buttons">
+            <button onclick="addTask()" class="btn-save">
+                <i class="fas fa-save"></i> Save Task
+            </button>
+            <button onclick="closeModal()" class="btn-cancel">
+                <i class="fas fa-times"></i> Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- EDIT TASK MODAL -->
+<div class="modal" id="editModal">
+    <div class="modal-content large">
+        <div class="modal-header">
+            <h2><i class="fas fa-edit"></i> Edit Task</h2>
+            <span class="close-modal" onclick="closeEditModal()">&times;</span>
+        </div>
+        <input type="hidden" id="editTaskId">
+        
+        <div class="form-group">
+            <label>Task Title</label>
+            <input type="text" id="editTitle">
+        </div>
+        
+        <div class="form-group">
+            <label>Description</label>
+            <textarea id="editDesc" rows="3"></textarea>
+        </div>
+        
+        <div class="form-row">
+            <div class="form-group">
+                <label>Priority</label>
+                <select id="editPriority">
+                    <option value="High">🔴 High</option>
+                    <option value="Medium">🟡 Medium</option>
+                    <option value="Low">🟢 Low</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label>Due Date</label>
+                <input type="date" id="editDueDate">
+            </div>
+            
+            <div class="form-group">
+                <label>Category</label>
+                <select id="editCategory">
+                    <option value="Work">💼 Work</option>
+                    <option value="Personal">🏠 Personal</option>
+                    <option value="Shopping">🛒 Shopping</option>
+                    <option value="Health">💪 Health</option>
+                    <option value="Education">📚 Education</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="modal-buttons">
+            <button onclick="updateTask()" class="btn-save">Update Task</button>
+            <button onclick="closeEditModal()" class="btn-cancel">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- EXPORT MODAL -->
+<div class="modal" id="exportModal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2><i class="fas fa-download"></i> Export Tasks</h2>
+            <span class="close-modal" onclick="closeExportModal()">&times;</span>
+        </div>
+        
+        <div class="export-options">
+            <button onclick="exportTodayTasks()" class="export-btn">
+                <i class="fas fa-calendar-day"></i>
+                Today's Tasks
+            </button>
+            <button onclick="exportAllTasks()" class="export-btn">
+                <i class="fas fa-database"></i>
+                All Tasks
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- STATS MODAL -->
+<div class="modal" id="statsModal">
+    <div class="modal-content medium">
+        <div class="modal-header">
+            <h2><i class="fas fa-chart-line"></i> Statistics</h2>
+            <span class="close-modal" onclick="closeStatsModal()">&times;</span>
+        </div>
+        <div id="statsContent"></div>
+    </div>
+</div>
+
+<!-- ACTIVITY MODAL -->
+<div class="modal" id="activityModal">
+    <div class="modal-content medium">
+        <div class="modal-header">
+            <h2><i class="fas fa-history"></i> Recent Activity</h2>
+            <span class="close-modal" onclick="closeActivityModal()">&times;</span>
+        </div>
+        <div id="activityContent"></div>
+    </div>
+</div>
+
+<script src="/static/script.js"></script>
+</body>
+</html>
